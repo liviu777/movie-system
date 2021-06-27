@@ -6,12 +6,18 @@ public class Main {
     public static void main(String[] args) throws FileNotFoundException {
         Service service = new Service();
         ArrayList<Product> extractProducts;
-        extractProducts = service.readProducts();
+//        extractProducts = service.readProducts();
 //        System.out.println(extractProducts);
-//        System.out.println(service.readUsers());
-        System.out.println("First 2 products with higher rating are :" +service.findProductsWithHighestRatingUsingMax());
-        System.out.println("First 2 products with higher rating are :" +service.findProductsWithHighestRatingUsingSort());
-        System.out.println(service.readUserSession());
+////        System.out.println(service.readUsers());
+//        System.out.println("First 2 products with higher rating are :" +service.findProductsWithHighestRatingUsingMax());
+//        System.out.println("First 2 products with higher rating are :" +service.findProductsWithHighestRatingUsingSort());
+//        System.out.println(service.readUserSession());
+        service.findRecommendedProducts().entrySet().stream().forEach(e -> {
+            System.out.print(e.getKey());
+            System.out.print(" : ");
+            System.out.println(e.getValue().stream().map(x -> x.getName()));
+        });
+        System.out.println(service.findRecommendedProducts());
 
     }
 

@@ -2,6 +2,7 @@ import javax.jws.soap.SOAPBinding;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Service {
 
@@ -15,11 +16,11 @@ public class Service {
             String attributes[] = line.split(",");
             Product product = new Product();
             product.setId(Integer.parseInt(attributes[0]));
-            product.setName(attributes[1]);
+            product.setName(attributes[1].replace(" ", ""));
             product.setYear(Integer.parseInt(attributes[2]));
             ArrayList<String> keywords = new ArrayList<String>();
             for (int i = 3; i < 8; i++) {
-                keywords.add(attributes[i]);
+                keywords.add(attributes[i].replace(" ", ""));
             }
             product.setKeywords(keywords);
             product.setRating(Double.parseDouble(attributes[8]));
@@ -35,7 +36,6 @@ public class Service {
         ArrayList<User> users = new ArrayList<User>();
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
-            System.out.println(line);
             String attributes[] = line.split(",");
             User user = new User();
             user.setId(Integer.parseInt(attributes[0]));
@@ -108,7 +108,7 @@ public class Service {
     }
 
     public Product findProductById(Integer productId) throws FileNotFoundException {
-        ArrayList<Product> productList = readProducts() ;
+        ArrayList<Product> productList = readProducts();
         for (Product product : productList) {
             if (productId == product.getId()) {
                 return product;
@@ -117,13 +117,25 @@ public class Service {
         return null;
     }
 
-    public ArrayList<Product> findRecommendedProductsByProducts(Product product) throws FileNotFoundException {
-        ArrayList<Product> productList = readProducts() ;
-        //campare every genre of the product received as parameter and compare cu every genre of every product from list
+    public List<Product> findRecommendedProductsByProduct(Product product) throws FileNotFoundException {
+        //campare every genre of the product received as parameter and compare with every genre of every product from list
         //build an frequency array or an hashmap that contains the product  (Product) as key and the value is the number of genre (Intger)
         // that matches with the product's genre
+        ArrayList<Product> productList = readProducts();
+        HashMap<Product, Integer> matchedGenres = new HashMap<>();
+        for (Product prod : productList) {
+            int noOfMatchedGenres = 0;
 
-        return null;
+            for (String genre : prod.getKeywords()) {
+                if (product.getKeywords().contains(genre)) {
+                    noOfMatchedGenres++;
+                }
+            }
+            matchedGenres.put(prod, noOfMatchedGenres);
+        }
+        int maxNoOfMatchedGenres = matchedGenres.entrySet().stream().max(Comparator.comparing(Map.Entry::getValue)).get().getValue();
+        List<Product> recommendedProducts = matchedGenres.entrySet().stream().filter(e -> e.getValue().equals(maxNoOfMatchedGenres)).map(Map.Entry::getKey).collect(Collectors.toList());
+        return recommendedProducts;
     }
 
 
@@ -139,10 +151,10 @@ public class Service {
             //extract product id from session
             Integer productId = (Integer) session.getValue();
             //find product by id => return product
-            Product product= findProductById(productId);
+            Product product = findProductById(productId);
             //find recommended  products by product => return list de recommended products
-            List<Product> productList = new ArrayList<>();
-            userRecommendedProducts.put(user, productList);
+            List<Product> recommendedProducts = findRecommendedProductsByProduct(product);
+            userRecommendedProducts.put(user, recommendedProducts);
         }
 
         return userRecommendedProducts;

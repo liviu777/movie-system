@@ -44,8 +44,6 @@ public class User {
         return "User{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", viewedProductsId=" + viewedProductsId +
-                ", purchasedProductsIds=" + purchasedProductsId +
                 '}';
     }
 }
