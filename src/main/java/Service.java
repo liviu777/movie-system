@@ -16,7 +16,7 @@ public class Service {
             String attributes[] = line.split(",");
             Product product = new Product();
             product.setId(Integer.parseInt(attributes[0]));
-            product.setName(attributes[1].replace(" ", ""));
+            product.setName(attributes[1]);
             product.setYear(Integer.parseInt(attributes[2]));
             ArrayList<String> keywords = new ArrayList<String>();
             for (int i = 3; i < 8; i++) {
@@ -30,7 +30,7 @@ public class Service {
         return products;
     }
 
-    public ArrayList<User> readUsers() throws FileNotFoundException {
+    public List<User> readUsers() throws FileNotFoundException {
         String file = "src/main/resources/movie-data/Users.txt";
         Scanner scanner = new Scanner(new File(file));
         ArrayList<User> users = new ArrayList<User>();
@@ -57,8 +57,7 @@ public class Service {
         return users;
     }
 
-    public List<Product> findProductsWithHighestRatingUsingSort() throws FileNotFoundException {
-        List<Product> products = readProducts();
+    public List<Product> findProductsWithHighestRatingUsingSort(List<Product> products) throws FileNotFoundException {
         products.sort(Comparator.comparing(Product::getRating));
         List<Product> productList = new ArrayList<>();
         productList.add(products.get(products.size() - 1));
@@ -98,7 +97,7 @@ public class Service {
     }
 
     public User findUserById(Integer userId) throws FileNotFoundException {
-        ArrayList<User> userList = readUsers();
+        List<User> userList = readUsers();
         for (User user : userList) {
             if (userId == user.getId()) {
                 return user;
@@ -125,7 +124,9 @@ public class Service {
         HashMap<Product, Integer> matchedGenres = new HashMap<>();
         for (Product prod : productList) {
             int noOfMatchedGenres = 0;
-
+            if(prod.getId() == product.getId()){
+                continue;
+            }
             for (String genre : prod.getKeywords()) {
                 if (product.getKeywords().contains(genre)) {
                     noOfMatchedGenres++;
@@ -139,7 +140,7 @@ public class Service {
     }
 
 
-    public HashMap<User, List<Product>> findRecommendedProducts() throws FileNotFoundException {
+    public HashMap<User, List<Product>> findRecommendedProducts(List<Product> products) throws FileNotFoundException {
         HashMap<User, List<Product>> userRecommendedProducts = new HashMap<>();
         HashMap<Integer, Integer> userSession = readUserSession();
         for (Map.Entry session : userSession.entrySet()) {
